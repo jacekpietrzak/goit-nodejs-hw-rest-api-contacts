@@ -53,10 +53,5 @@
     "email": "Donec.elementum@scelerisquescelerisquedui.net",
     "phone": "(748) 206-2688"
   },
-  {
-    "id": "11",
-    "name": "Franki",
-    "email": "Franki@me.com",
-    "phone": "123223132123"
-  }
+  { "id": "11", "name": "Fibi", "email": "fibi@me.com", "phone": "11232132" }
 ]

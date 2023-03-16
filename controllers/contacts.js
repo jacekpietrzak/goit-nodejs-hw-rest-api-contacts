@@ -9,9 +9,8 @@ const { Contact } = require("../models/contact.js");
 
 const listContacts = async () => {
   try {
-    const data = await fs.readFile(contactsPath);
-    const stringifiedData = data.toString();
-    const parsedData = JSON.parse(stringifiedData);
+    const data = await fs.readFile(contactsPath, "utf-8");
+    const parsedData = JSON.parse(data);
     return parsedData;
   } catch (err) {
     console.log(err.message);
@@ -20,9 +19,8 @@ const listContacts = async () => {
 
 const getContactById = async (contactId) => {
   try {
-    const data = await fs.readFile(contactsPath);
-    const stringifiedData = data.toString();
-    const parsedData = JSON.parse(stringifiedData);
+    const data = await fs.readFile(contactsPath, "utf-8");
+    const parsedData = JSON.parse(data);
 
     const contact = parsedData.find((contact) => contact.id === contactId);
     return contact;
@@ -33,9 +31,8 @@ const getContactById = async (contactId) => {
 
 const addContact = async (body) => {
   try {
-    const data = await fs.readFile(contactsPath);
-    const stringifiedData = data.toString();
-    const parsedData = JSON.parse(stringifiedData);
+    const data = await fs.readFile(contactsPath, "utf-8");
+    const parsedData = JSON.parse(data);
 
     const lastElement = parsedData.slice(-1);
     const newId = Number(lastElement[0].id) + 1;
@@ -63,9 +60,8 @@ const addContact = async (body) => {
 
 const removeContact = async (contactId) => {
   try {
-    const data = await fs.readFile(contactsPath);
-    const stringifiedData = data.toString();
-    const parsedData = JSON.parse(stringifiedData);
+    const data = await fs.readFile(contactsPath, "utf-8");
+    const parsedData = JSON.parse(data);
 
     const contactIndex = parsedData.findIndex(
       (contact) => contact.id === contactId
@@ -86,9 +82,8 @@ const removeContact = async (contactId) => {
 
 const updateContact = async (contactId, body) => {
   try {
-    const data = await fs.readFile(contactsPath);
-    const stringifiedData = data.toString();
-    const parsedData = JSON.parse(stringifiedData);
+    const data = await fs.readFile(contactsPath, "utf-8");
+    const parsedData = JSON.parse(data);
 
     const contactIndex = parsedData.findIndex(
       (contact) => contact.id === contactId

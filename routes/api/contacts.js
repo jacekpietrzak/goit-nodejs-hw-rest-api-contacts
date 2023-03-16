@@ -73,18 +73,9 @@ router.put("/:id", async (req, res, next) => {
       return res.status(404).json({ message: "Not found" });
     }
 
-    const { name, email, phone } = req.body;
-
-    if (!name && !email && !phone) {
-      return res.status(400).json({ message: "missing fields" });
-    }
-
     const { error } = contactSchema.validate(req.body);
     if (error) {
-      const value = error.details[0].context.label;
-      return res
-        .status(400)
-        .send({ message: `missing required ${value} - field` });
+      return res.status(400).send({ message: "missing fields" });
     }
 
     const updatedContact = await updateContact(id, req.body);
