@@ -1,18 +1,37 @@
+const mongoose = require("mongoose");
+const Schema = mongoose.Schema;
 const Joi = require("joi");
 
-const contactSchema = Joi.object({
-  name: Joi.string().alphanum().min(3).required(),
-  email: Joi.string().email().required(),
-  phone: Joi.number().required(),
+const favoriteValidationSchema = Joi.object({
+  favorite: Joi.boolean(),
 });
 
-class Contact {
-  constructor(id, name, email, phone) {
-    this.id = id;
-    this.name = name;
-    this.email = email;
-    this.phone = phone;
-  }
-}
+const contactValidationSchema = Joi.object({
+  name: Joi.string().min(3).required(),
+  email: Joi.string().email(),
+  phone: Joi.string(),
+});
 
-module.exports = { Contact, contactSchema };
+const contactSchema = new Schema(
+  {
+    name: {
+      type: String,
+      required: [true, "Set name for contact"],
+    },
+    email: {
+      type: String,
+    },
+    phone: {
+      type: String,
+    },
+    favorite: {
+      type: Boolean,
+      default: false,
+    },
+  },
+  { versionKey: false, timestamps: true }
+);
+
+const Contact = mongoose.model("contact", contactSchema);
+
+module.exports = { Contact, contactValidationSchema, favoriteValidationSchema };
