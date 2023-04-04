@@ -9,6 +9,8 @@ const {
   updateStatus,
 } = require("../../controllers/contacts.js");
 
+const { auth } = require("../../auth/auth.js");
+
 const {
   contactValidationSchema,
   favoriteValidationSchema,
@@ -16,7 +18,7 @@ const {
 
 const router = express.Router();
 
-router.get("/", async (req, res, next) => {
+router.get("/", auth, async (req, res, next) => {
   try {
     const contacts = await listContacts();
     return res.status(200).json(contacts);
@@ -54,8 +56,7 @@ router.post("/", async (req, res, next) => {
       .send({ message: `missing required ${value} - field` });
   }
   try {
-    const body = req.body;
-    const contact = await addContact(body);
+    const contact = await addContact(req.body);
     return res.status(201).json(contact);
   } catch {
     return res.status(500).send("something went wrong");

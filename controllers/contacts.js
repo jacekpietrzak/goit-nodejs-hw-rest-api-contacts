@@ -1,9 +1,9 @@
-const fs = require("fs/promises");
-const path = require("node:path");
+// const fs = require("fs/promises");
+// const path = require("node:path");
 
-const contactsPath = `${path.dirname("./db/contacts.json")}/${path.basename(
-  "./db/contacts.json"
-)}`;
+// const contactsPath = `${path.dirname("./db/contacts.json")}/${path.basename(
+//   "./db/contacts.json"
+// )}`;
 
 const { Contact } = require("../models/contact.js");
 
