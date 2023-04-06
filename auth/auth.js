@@ -1,8 +1,6 @@
 const jwt = require("jsonwebtoken");
-
-const { getUserById } = require("../controllers/users.js");
-
 const jwtSecret = process.env.JWT_SECRET;
+const { getUserById } = require("../controllers/users.js");
 
 const auth = async (req, res, next) => {
   const token = req.headers.authorization;
@@ -40,9 +38,6 @@ const auth = async (req, res, next) => {
     }
 
     req.user = user;
-
-    // console.log("user from auth:", user);
-    // console.log("decodedToken from auth:", decodedToken);
 
     next();
   } catch (error) {

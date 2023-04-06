@@ -3,11 +3,9 @@ require("dotenv").config({ path: "./.env" });
 const logger = require("morgan");
 const cors = require("cors");
 
-const contactsRouter = require("./routes/api/contacts");
-const signupRouter = require("./routes/api/users/signup.js");
-const loginRouter = require("./routes/api/users/login.js");
-const logoutRouter = require("./routes/api/users/logout.js");
-const currentUserRouter = require("./routes/api/users/current.js");
+const contactsRouter = require("./routes/api/contacts.js");
+const usersRouter = require("./routes/api/users.js");
+const { auth } = require("./auth/auth.js");
 
 const app = express();
 
@@ -17,11 +15,8 @@ app.use(logger(formatsLogger));
 app.use(cors());
 app.use(express.json());
 
-app.use("/api/contacts", contactsRouter);
-app.use("/api/users/signup", signupRouter);
-app.use("/api/users/login", loginRouter);
-app.use("/api/users/logout", logoutRouter);
-app.use("/api/users/current", currentUserRouter);
+app.use("/api/contacts", auth, contactsRouter);
+app.use("/api/users", usersRouter);
 
 app.use((req, res) => {
   res.status(404).json({

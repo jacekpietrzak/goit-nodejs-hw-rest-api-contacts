@@ -9,8 +9,6 @@ const {
   updateStatus,
 } = require("../../controllers/contacts.js");
 
-const { auth } = require("../../auth/auth.js");
-
 const {
   contactValidationSchema,
   favoriteValidationSchema,
@@ -18,7 +16,7 @@ const {
 
 const router = express.Router();
 
-router.get("/", auth, async (req, res, next) => {
+router.get("/", async (req, res, next) => {
   try {
     const contacts = await listContacts();
     return res.status(200).json(contacts);
@@ -122,7 +120,6 @@ router.patch("/:id/favorite", async (req, res, next) => {
 
   try {
     const contact = await getContactById(id);
-    console.log("contact:", contact);
     if (!contact) {
       return res.status(404).json({ message: "Not found" });
     }
