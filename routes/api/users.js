@@ -5,6 +5,12 @@ const fs = require("fs").promises;
 const multer = require("multer");
 const jimp = require("jimp");
 
+const sgMail = require("@sendgrid/mail");
+const dotenv = require("dotenv");
+dotenv.config();
+
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+
 const router = express.Router();
 const { auth } = require("../../auth/auth.js");
 const {
@@ -12,6 +18,7 @@ const {
   getUserById,
   getUserByEmail,
   updateUser,
+  getUserByVerificationToken,
 } = require("../../controllers/users.js");
 
 const { issueToken } = require("../../auth/issueToken.js");
@@ -43,6 +50,24 @@ router.post("/signup", async (req, res) => {
   }
   try {
     const user = await createUser(email, password);
+    const newUser = await getUserByEmail(email);
+    const verificationToken = newUser.verificationToken;
+    const msg = {
+      to: email,
+      from: "jp@jpworkroom.com",
+      subject: "Please verify your email address",
+      text: `Dear user, To access all the features of our website, please copy verification link [localhost:3000/api/users/verify/${verificationToken}] and paste into your browser to complete the email verification process. If you have any questions or concerns, please feel free to contact our customer support team. Best regards, Jacek Pietrzak`,
+      html: `<p>Dear user,</p><p>To access all the features of our website, please click on the verification link below</p><a href='http://localhost:3000/api/users/verify/${verificationToken}'>http://localhost:3000/api/users/verify/${verificationToken}</a><p>If you have any questions or concerns, please feel free to contact our customer support team.</p><p>Best regards,<br>Jacek Pietrzak</p>`,
+    };
+    sgMail
+      .send(msg)
+      .then(() => {
+        console.log("Email sent");
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+
     return res.status(201).json({
       status: "Created",
       code: 201,
@@ -55,7 +80,72 @@ router.post("/signup", async (req, res) => {
       },
     });
   } catch (error) {
-    return res.status(500).json({ message: "Something went wrong" });
+    return res
+      .status(500)
+      .json({ message: "Something went wrong", error: error.message });
+  }
+});
+
+router.post("/verify", async (req, res) => {
+  const email = req.body.email;
+
+  if (!email) {
+    return res.status(400).json({ message: "missing required field email" });
+  }
+  try {
+    const newUser = await getUserByEmail(email);
+    const verificationToken = newUser.verificationToken;
+
+    if (verificationToken === null) {
+      res.status(400).json({
+        status: "Bad Request",
+        code: 400,
+        message: "Verification has already been passed",
+      });
+    }
+    const msg = {
+      to: email,
+      from: "jp@jpworkroom.com",
+      subject: "Please verify your email address",
+      text: `Dear user, To access all the features of our website, please copy verification link [localhost:3000/api/users/verify/${verificationToken}] and paste into your browser to complete the email verification process. If you have any questions or concerns, please feel free to contact our customer support team. Best regards, Jacek Pietrzak`,
+      html: `<p>Dear user,</p><p>To access all the features of our website, please click on the verification link below</p><a href='http://localhost:3000/api/users/verify/${verificationToken}'>http://localhost:3000/api/users/verify/${verificationToken}</a><p>If you have any questions or concerns, please feel free to contact our customer support team.</p><p>Best regards,<br>Jacek Pietrzak</p>`,
+    };
+    sgMail
+      .send(msg)
+      .then(() => {
+        console.log("Email sent");
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+    return res.status(200).json({
+      status: "Ok",
+      code: 200,
+      message: "Verification email sent",
+    });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ message: "Something went wrong", error: error.message });
+  }
+});
+
+router.get("/verify/:verificationToken", async (req, res) => {
+  const { verificationToken } = req.params;
+  const user = await getUserByVerificationToken(verificationToken);
+
+  if (!user) {
+    return res.status(404).json({ message: "User not found" });
+  }
+
+  try {
+    const newData = { verify: true, verificationToken: null };
+    await updateUser(user._id, newData);
+    return res.status(200).json({ message: "Verification successful" });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ message: "Something went wrong", error: error.message });
   }
 });
 
@@ -73,6 +163,13 @@ router.post("/login", async (req, res) => {
   }
 
   const user = await getUserByEmail(email);
+
+  if (user.verify === false) {
+    return res
+      .status(400)
+      .json({ message: "You need to verify your email address" });
+  }
+
   const userPassword = user.password;
 
   const passwordCorrect = bcrypt.compareSync(password, userPassword);
