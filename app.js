@@ -1,24 +1,26 @@
-const express = require("express");
+const express = require('express');
 const app = express();
-const logger = require("morgan");
-const cors = require("cors");
-const createError = require("http-errors");
+const logger = require('morgan');
+const cors = require('cors');
+const createError = require('http-errors');
 
-require("dotenv").config({ path: "./.env" });
-const { auth } = require("./auth/auth.js");
+require('dotenv').config({ path: './.env' });
+const { auth } = require('./auth/auth.js');
 
-const contactsRouter = require("./routes/api/contacts.js");
-const usersRouter = require("./routes/api/users.js");
+const contactsRouter = require('./routes/api/contacts.js');
+const usersRouter = require('./routes/api/users.js');
 
-const formatsLogger = app.get("env") === "development" ? "dev" : "short";
+const formatsLogger = app.get('env') === 'development' ? 'dev' : 'short';
+
+const corsOptions = { origin: 'http://localhost:5173/' };
 
 app.use(logger(formatsLogger));
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(express.json());
 
-app.use("/api/contacts", auth, contactsRouter);
-app.use("/api/users", usersRouter);
-app.use("/public", express.static("public"));
+app.use('/api/contacts', auth, contactsRouter);
+app.use('/api/users', usersRouter);
+app.use('/public', express.static('public'));
 
 app.use((req, res, next) => {
   next(createError(404));
